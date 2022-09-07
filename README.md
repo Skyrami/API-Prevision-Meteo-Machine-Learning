@@ -1,7 +1,3 @@
-# DataScientest.RainProject2
-Projet numéro 2 avec le jeu de données RainTomorrow.
-
-
 # To Run the project
 uvicorn Main:api --reload
 
