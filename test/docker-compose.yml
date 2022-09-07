@@ -1,0 +1,107 @@
+version: "3.9"
+services:
+  rainproject:
+    image: rainproject:latest
+    container_name: rainproject-server
+    ports:
+      - 8000:8000
+    networks:
+      - rainproject-network-test
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "http://0.0.0.0:8000/datascientest/rainproject/ping"
+        ]
+      interval: 10s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+
+  rainproject-status-tester:
+      image: rainproject-status-tester:latest
+      container_name: rainproject-status-tester
+      depends_on:
+        rainproject:
+          condition: service_healthy
+      restart: on-failure
+      networks:
+        - rainproject-network-test
+      volumes:
+        - ./TestResult:/home/tester/log/
+      environment:
+        API_ADDRESS: rainproject-server
+        API_PORT: 8000
+
+  rainproject-prediction-tester:
+    image: rainproject-prediction-tester:latest
+    container_name: rainproject-prediction-tester
+    depends_on:
+      rainproject:
+        condition: service_healthy
+      rainproject-status-tester:
+        condition: service_completed_successfully
+    restart: on-failure
+    networks:
+      - rainproject-network-test
+    volumes:
+      - ./TestResult:/home/tester/log/
+    environment:
+      API_ADDRESS: rainproject-server
+      API_PORT: 8000
+
+  rainproject-authentification-tester:
+      image: rainproject-authentification-tester:latest
+      container_name: rainproject-authentification-tester
+      depends_on:
+        rainproject:
+          condition: service_healthy
+        rainproject-status-tester:
+          condition: service_completed_successfully
+      restart: on-failure
+      networks:
+        - rainproject-network-test
+      volumes:
+        - ./TestResult:/home/tester/log/
+      environment:
+        API_ADDRESS: rainproject-server
+        API_PORT: 8000
+
+  rainproject-scoring-tester:
+    image: rainproject-scoring-tester:latest
+    container_name: rainproject-scoring-tester
+    depends_on:
+      rainproject:
+        condition: service_healthy
+      rainproject-status-tester:
+        condition: service_completed_successfully
+    restart: on-failure
+    networks:
+      - rainproject-network-test
+    volumes:
+      - ./TestResult:/home/tester/log/
+    environment:
+      API_ADDRESS: rainproject-server
+      API_PORT: 8000  
+
+  rainproject-list-tester:
+      image: rainproject-list-tester:latest
+      container_name: rainproject-list-tester
+      depends_on:
+        rainproject:
+          condition: service_healthy
+        rainproject-status-tester:
+          condition: service_completed_successfully
+      restart: on-failure
+      networks:
+        - rainproject-network-test
+      volumes:
+        - ./TestResult:/home/tester/log/
+      environment:
+        API_ADDRESS: rainproject-server
+        API_PORT: 8000  
+
+networks:
+  rainproject-network-test:

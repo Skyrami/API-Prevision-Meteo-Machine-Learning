@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: rainproject-service
+  labels:
+    app: rainproject-api
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8002
+    protocol: TCP
+    targetPort: 8000
+  selector:
+    app: rainproject-api
